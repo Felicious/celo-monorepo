@@ -890,18 +890,17 @@ contract Governance is IGovernance, Ownable, Initializable, UsingBondedDeposits,
       proposal.votes.abstain,
       proposal.totalWeight
     );
-    int256 proposalThreshold = HALF;
     for (uint256 i = 0; i < proposal.transactions.length; i = i.add(1)) {
       bytes4 functionId = extractFunctionSignature(proposal.transactions[i].data);
       int256 threshold = getConstitution(
         proposal.transactions[i].destination,
         functionId
       );
-      if (proposalThreshold < threshold) {
-        proposalThreshold = threshold;
+      if (support < threshold) {
+        return false;
       }
     }
-    return support >= proposalThreshold;
+    return true;
   }
 
   /**
@@ -938,8 +937,9 @@ contract Governance is IGovernance, Ownable, Initializable, UsingBondedDeposits,
     } else if (stage == ProposalStage.Execution) {
       return dequeueTime.add(stageDurations.approval).add(stageDurations.referendum);
     } else if (stage == ProposalStage.Expiration) {
-      return dequeueTime.add(stageDurations.approval).add(stageDurations.referendum)
-        .add(stageDurations.execution);
+      return dequeueTime.add(stageDurations.approval).add(stageDurations.referendum).add(
+        stageDurations.execution
+      );
     } else {
       require(false);
     }
@@ -958,25 +958,25 @@ contract Governance is IGovernance, Ownable, Initializable, UsingBondedDeposits,
   )
     private
   {
-    updateParticipationBaseline(proposal);
+    if (proposal.approved && proposal.totalWeight > 0) {
+      updateParticipationBaseline(proposal);
+    }
     dequeued[index] = 0;
     emptyIndices.push(index);
     delete proposals[proposalId];
   }
 
   /**
-   * @notice Updates quorum using the total number of votes on the proposal
-   *   and the total network weight.
+   * @notice Updates the participation baseline monitored in the Quorum contract
+   *   using the total number of votes on the proposal and the total weight across all accounts.
    * @param proposal The proposal struct.
    */
   function updateParticipationBaseline(Proposal storage proposal) private {
-    if (proposal.approved && proposal.totalWeight > 0) {
-      uint256 totalVotes = proposal.votes.yes.add(proposal.votes.no).add(proposal.votes.abstain);
-      int256 participation = FixidityLib.newFixed(int256(totalVotes))
-        .divide(FixidityLib.newFixed(int256(proposal.totalWeight)));
-      IQuorum quorum = IQuorum(registry.getAddressForOrDie(QUORUM_REGISTRY_ID));
-      quorum.updateParticipationBaseline(participation);
-    }
+    uint256 totalVotes = proposal.votes.yes.add(proposal.votes.no).add(proposal.votes.abstain);
+    int256 participation = FixidityLib.newFixed(int256(totalVotes))
+      .divide(FixidityLib.newFixed(int256(proposal.totalWeight)));
+    IQuorum quorum = IQuorum(registry.getAddressForOrDie(QUORUM_REGISTRY_ID));
+    quorum.updateParticipationBaseline(participation);
   }
 
   /**
