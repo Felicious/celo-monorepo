@@ -2,16 +2,19 @@ import * as firebase from 'firebase/app'
 import 'firebase/database'
 import getConfig from 'next/config'
 
-function getFirebase() {
+async function getFirebase() {
   if (!firebase.apps.length) {
     const { publicRuntimeConfig } = getConfig()
     firebase.initializeApp(publicRuntimeConfig.FIREBASE_CONFIG)
+    const loginUsername = publicRuntimeConfig.LOGIN_USERNAME
+    const loginPassword = publicRuntimeConfig.LOGIN_PASSWORD
+    await firebase.auth().signInWithEmailAndPassword(loginUsername, loginPassword)
   }
   return firebase
 }
 
-function getDB() {
-  return getFirebase().database()
+async function getDB(): Promise<firebase.database.Database> {
+  return (await getFirebase()).database()
 }
 
 // Don't do this. It hangs next.js build process: https://github.com/zeit/next.js/issues/6824
@@ -49,7 +52,7 @@ export async function sendRequest(beneficiary: Address | E164Number, type: Reque
     status: RequestStatus.Pending,
     type,
   }
-  const ref = await getDB()
+  const ref: firebase.database.Reference = (await getDB())
     .ref(`${NETWORK}/requests`)
     .push(newRequest)
 
@@ -57,7 +60,7 @@ export async function sendRequest(beneficiary: Address | E164Number, type: Reque
 }
 
 export async function subscribeRequest(key: string, onChange: (record: RequestRecord) => void) {
-  const ref = await getDB().ref(`${NETWORK}/requests/${key}`)
+  const ref: firebase.database.Reference = (await getDB()).ref(`${NETWORK}/requests/${key}`)
 
   const listener = ref.on('value', (snap) => {
     const record = snap.val() as RequestRecord

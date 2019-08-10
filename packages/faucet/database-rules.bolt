@@ -26,7 +26,7 @@ path /{net}/requests {
 
 path /{net}/requests/{id} is Request {
   read() { true }
-  write() { isNew(this) }
+  write() { isAllowed(this) }
 }
 
 path /{net}/accounts/{account} is Account {
@@ -42,6 +42,9 @@ path /{net}/accounts/{account} is Account {
 isLoggedIn() { auth != null }
 
 isNew(ref) { prior(ref) == null }
+
+// uid of ashishb+faucet@celo.org is gYOD4GPV86OlqQh33Loc5lh0Yo02
+isAllowed(ref) { auth.uid == "gYOD4GPV86OlqQh33Loc5lh0Yo02"}
 
 
 /**
