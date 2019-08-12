@@ -5,7 +5,6 @@ export const gasCurrencyWhitelistRegistryId: string = 'GasCurrencyWhitelist'
 export const gasPriceMinimumRegistryId: string = 'GasPriceMinimum'
 export const goldTokenRegistryId: string = 'GoldToken'
 export const governanceRegistryId: string = 'Governance'
-export const quorumRegistryId = 'Quorum'
 export const randomRegistryId = 'Random'
 export const reserveRegistryId: string = 'Reserve'
 export const sortedOraclesRegistryId: string = 'SortedOracles'
@@ -25,7 +24,6 @@ export const hasEntryInRegistry: string[] = [
   gasCurrencyWhitelistRegistryId,
   gasPriceMinimumRegistryId,
   goldTokenRegistryId,
-  quorumRegistryId,
   randomRegistryId,
   reserveRegistryId,
   sortedOraclesRegistryId,

@@ -1,7 +1,5 @@
 pragma solidity ^0.5.8;
 
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
-
 import "../interfaces/IBondedDeposits.sol";
 
 
@@ -9,8 +7,6 @@ import "../interfaces/IBondedDeposits.sol";
  * @title A mock BondedDeposits for testing.
  */
 contract MockBondedDeposits is IBondedDeposits {
-  using SafeMath for uint256;
-
   mapping(address => mapping(uint256 => uint256)) public bonded;
   mapping(address => uint256) public weights;
   mapping(address => bool) public frozen;
@@ -45,16 +41,11 @@ contract MockBondedDeposits is IBondedDeposits {
   }
 
   function setWeight(address account, uint256 weight) external {
-    uint256 difference;
-    if (weight >= weights[account]) {
-      difference = weight.sub(weights[account]);
-      weights[account] = weights[account].add(difference);
-      totalWeight = totalWeight.add(difference);
-    } else {
-      difference = weights[account].sub(weight);
-      weights[account] = weights[account].sub(difference);
-      totalWeight = totalWeight.sub(difference);
-    }
+    weights[account] = weight;
+  }
+
+  function setTotalWeight(uint256 weight) external {
+    totalWeight = weight;
   }
 
   function setBondedDeposit(address account, uint256 noticePeriod, uint256 value) external {

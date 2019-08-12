@@ -30,18 +30,16 @@ const defaultConfig = {
     minDeposit: 1, // 1 cGLD
     queueExpiry: 7 * 24 * 60 * 60, // 1 week
     referendumStageDuration: 15 * 60, // 15 minutes
+    participationBaseline: 8 / 10,
+    participationFloor: 5 / 100,
+    updateCoefficient: 1 / 5,
+    criticalBaselineLevel: 1,
   },
   gasPriceMinimum: {
     initialMinimum: 10000,
     targetDensity: 1 / 2,
     adjustmentSpeed: 1 / 2,
     infrastructureFraction: 1 / 2,
-  },
-  quorum: {
-    participationBaseline: 8 / 10,
-    participationFloor: 5 / 100,
-    updateCoefficient: 1 / 5,
-    criticalBaselineLevel: 1,
   },
   registry: {
     predeployedProxyAddress: '0x000000000000000000000000000000000000ce10',
@@ -79,12 +77,13 @@ const linkedLibraries = {
     'Exchange',
     'GasPriceMinimum',
     'Governance',
-    'Quorum',
+    'Proposals',
     'SortedFractionMedianList',
     'SortedOracles',
     'StableToken',
     'Validators',
   ],
+  Proposals: ['Governance', 'ProposalsTest'],
   LinkedList: ['AddressLinkedList', 'SortedLinkedList'],
   SortedLinkedList: ['AddressSortedLinkedList', 'IntegerSortedLinkedList'],
   AddressLinkedList: ['Validators'],
